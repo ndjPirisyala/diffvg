@@ -22,7 +22,7 @@ def render(canvas_width, canvas_height, shapes, shape_groups):
 
 
 def main(args):
-    pydiffvg.set_device(th.device('cuda:1'))
+    pydiffvg.set_device(th.device('cuda:0'))
 
     # Load SVG
     svg = os.path.join(args.svg)
@@ -31,7 +31,7 @@ def main(args):
 
     # Save initial state
     ref = render(canvas_width, canvas_height, shapes, shape_groups)
-    pydiffvg.imwrite(ref.cpu(), args.out, gamma=2.2)
+    pydiffvg.imwrite(ref.cpu(), args.out, gamma=1.0)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

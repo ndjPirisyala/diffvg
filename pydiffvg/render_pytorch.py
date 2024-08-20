@@ -51,10 +51,14 @@ class RenderFunction(torch.autograd.Function):
                 args.append(shape.radius.cpu())
                 args.append(shape.center.cpu())
             elif isinstance(shape, pydiffvg.Ellipse):
-                assert(shape.radius.is_contiguous())
+                # assert(shape.radius.is_contiguous())
+                assert(shape.rx.is_contiguous())
+                assert(shape.ry.is_contiguous())
                 assert(shape.center.is_contiguous())
                 args.append(diffvg.ShapeType.ellipse)
-                args.append(shape.radius.cpu())
+                # args.append(shape.radius.cpu())
+                args.append(shape.rx.cpu())
+                args.append(shape.ry.cpu())
                 args.append(shape.center.cpu())
             elif isinstance(shape, pydiffvg.Path):
                 assert(shape.num_control_points.is_contiguous())
@@ -213,11 +217,14 @@ class RenderFunction(torch.autograd.Function):
                 current_index += 1
                 shape = diffvg.Circle(radius, diffvg.Vector2f(center[0], center[1]))
             elif shape_type == diffvg.ShapeType.ellipse:
-                radius = args[current_index]
+                # radius = args[current_index]
+                rx = args[current_index]
+                current_index += 1
+                ry = args[current_index]
                 current_index += 1
                 center = args[current_index]
                 current_index += 1
-                shape = diffvg.Ellipse(diffvg.Vector2f(radius[0], radius[1]),
+                shape = diffvg.Ellipse(diffvg.Vector2f(rx, ry),
                                        diffvg.Vector2f(center[0], center[1]))
             elif shape_type == diffvg.ShapeType.path:
                 num_control_points = args[current_index]

@@ -478,11 +478,12 @@ def parse_shape(node, transform, fill_color, shapes, shape_groups, defs):
         if 'id' in node.attrib:
             name = node.attrib['id']
         center = torch.tensor([cx, cy])
-        circle = pydiffvg.Circle(radius = torch.tensor(radius),
+        ellipse = pydiffvg.Ellipse(rx = torch.tensor(rx),
+                                 ry = torch.tensor(ry),
                                  center = center)
-        circle.stroke_width = stroke_width
+        ellipse.stroke_width = stroke_width
         shape_ids = torch.tensor([len(shapes)])
-        shapes.append(circle)
+        shapes.append(ellipse)
         shape_groups.append(pydiffvg.ShapeGroup(\
             shape_ids = shape_ids,
             fill_color = new_fill_color,
@@ -536,6 +537,7 @@ def parse_scene(node):
     fill_color = torch.tensor([0.0, 0.0, 0.0, 1.0])
     transform = torch.eye(3)
     if 'viewBox' in node.attrib:
+        print('viewBox')
         view_box_array = node.attrib['viewBox'].split()
         canvas_width = parse_int(view_box_array[2])
         canvas_height = parse_int(view_box_array[3])
@@ -548,22 +550,33 @@ def parse_scene(node):
             canvas_height = parse_int(node.attrib['height'])
         else:
             print('Warning: Can\'t find canvas height.')
-    for child in node:
+    print(len(node))
+    for I, child in enumerate(node):
         tag = remove_namespaces(child.tag)
         if tag == 'defs':
+            print(I, 'defs')
             defs = parse_defs(child, transform, defs)
         elif tag == 'style':
+            print(I, 'style')
             defs = parse_stylesheet(child, transform, defs)
         elif tag == 'linearGradient':
+            print(I, 'linearGradient')
             if 'id' in child.attrib:
                 defs[child.attrib['id']] = parse_linear_gradient(child, transform, defs)
         elif tag == 'radialGradient':
+            print(I, 'radialGradient')
             if 'id' in child.attrib:
                 defs[child.attrib['id']] = parse_radial_gradient(child, transform, defs)
         elif is_shape(tag):
+            print(I, tag)
+            shapes, shape_groups = parse_shape(\
+                child, transform, fill_color, shapes, shape_groups, defs)
+        elif tag == 'ellipse':
+            print(I, tag)
             shapes, shape_groups = parse_shape(\
                 child, transform, fill_color, shapes, shape_groups, defs)
         elif tag == 'g':
+            print(I, 'g')
             shapes, shape_groups = parse_group(\
                 child, transform, fill_color, shapes, shape_groups, defs)
     return canvas_width, canvas_height, shapes, shape_groups
@@ -574,6 +587,7 @@ def svg_to_scene(filename):
     """
 
     tree = etree.parse(filename)
+    # print(tree)
     root = tree.getroot()
     cwd = os.getcwd()
     if (os.path.dirname(filename) != ''):

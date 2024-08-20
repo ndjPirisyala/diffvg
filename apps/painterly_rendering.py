@@ -27,6 +27,11 @@ def main(args):
     
     #target = torch.from_numpy(skimage.io.imread('imgs/lena.png')).to(torch.float32) / 255.0
     target = torch.from_numpy(skimage.io.imread(args.target)).to(torch.float32) / 255.0
+    # print('target 1 - ', target.shape)
+    # print('target 11 - ', target[0][0])
+    target = target[:, :, :3]
+    # print('target 2 - ', target.shape)
+    # print('target 22 - ', target[0][0])
     target = target.pow(gamma)
     target = target.to(pydiffvg.get_device())
     target = target.unsqueeze(0)
@@ -168,6 +173,8 @@ def main(args):
         img = img.unsqueeze(0)
         img = img.permute(0, 3, 1, 2) # NHWC -> NCHW
         if args.use_lpips_loss:
+            # print('img - ', img.shape)
+            # print('target - ', target.shape)
             loss = perception_loss(img, target) + (img.mean() - target.mean()).pow(2)
         else:
             loss = (img - target).pow(2).mean()

@@ -10,8 +10,9 @@ class Circle:
         self.id = id
 
 class Ellipse:
-    def __init__(self, radius, center, stroke_width = torch.tensor(1.0), id = ''):
-        self.radius = radius
+    def __init__(self, rx, ry, center, stroke_width = torch.tensor(1.0), id = ''):
+        self.rx = rx
+        self.ry = ry
         self.center = center
         self.stroke_width = stroke_width
         self.id = id
